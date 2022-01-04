@@ -2,15 +2,19 @@
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 # Now you should be able to run this script
 
+
+# Enable UI
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
+# Create Form
 $Form_Timer                      = New-Object system.Windows.Forms.Form
 $Form_Timer.ClientSize           = New-Object System.Drawing.Point(400,100)
 $Form_Timer.text                 = "Temporizador"
 $Form_Timer.TopMost              = $false
 $Form_Timer.BackColor            = [System.Drawing.ColorTranslator]::FromHtml("#9b9b9b")
 
+# Create button Start
 $Btn_Start                       = New-Object system.Windows.Forms.Button
 $Btn_Start.text                  = "START"
 $Btn_Start.width                 = 160
@@ -19,6 +23,7 @@ $Btn_Start.location              = New-Object System.Drawing.Point(30,10)
 $Btn_Start.Font                  = New-Object System.Drawing.Font('Consolas',10)
 $Btn_Start.BackColor             = [System.Drawing.ColorTranslator]::FromHtml("#89e224")
 
+# Create button stop
 $Btn_Stop                        = New-Object system.Windows.Forms.Button
 $Btn_Stop.text                   = "STOP"
 $Btn_Stop.width                  = 160
@@ -27,6 +32,7 @@ $Btn_Stop.location               = New-Object System.Drawing.Point(210,10)
 $Btn_Stop.Font                   = New-Object System.Drawing.Font('Consolas',10)
 $Btn_Stop.BackColor              = [System.Drawing.ColorTranslator]::FromHtml("#e2112d")
 
+# Create label to show time
 $Lbl_TimerDisplay                = New-Object System.Windows.Forms.TextBox
 $Lbl_TimerDisplay.text           = "01 : 30 : 00"
 $Lbl_TimerDisplay.AutoSize       = $false
@@ -37,13 +43,18 @@ $Lbl_TimerDisplay.location       = New-Object System.Drawing.Point(30,55)
 $Lbl_TimerDisplay.Font           = New-Object System.Drawing.Font('Consolas',10)
 $Lbl_TimerDisplay.BackColor      = [System.Drawing.ColorTranslator]::FromHtml("#ffffff")
 
+# Add buttons and label to form
 $Form_Timer.controls.AddRange(@($Btn_Start,$Btn_Stop,$Lbl_TimerDisplay))
 
+# Add events to buttons
 $Btn_Start.Add_Click({ Set-StartTime })
 $Btn_Stop.Add_Click({ Stop-Timer })
 
+
+# Create timer object
 $timer1 = New-Object 'System.Windows.Forms.Timer'
 
+# Build function that will be executed each time, timer triggers
 $timer1_Tick={
     Write-Host $Global:Time
     $Global:Time -= 1
@@ -60,18 +71,22 @@ $timer1_Tick={
     }
 }
 
-$timer1.Interval = 1000 # 1 Sec
+# Set 1 sec / 1000 ms interval
+$timer1.Interval = 1000
+
+# Add function to tick event
 $timer1.add_Tick($timer1_Tick)
 
 $Global:Time = 0
 
-#Write your logic code here
+# Create function that will be trigger on start button click
 function Set-StartTime {
     $HH, $MM, $SS =  $Lbl_TimerDisplay.Text.Split(":")
     $Global:Time = [int]$HH*3600 + [int]$MM*60 + [int]$SS
     $timer1.Enabled = $True
 }
 
+# Create function that will be trigger on stop button click
 function Stop-Timer {
     $timer1.Enabled = $False
 }
@@ -85,10 +100,11 @@ public static extern IntPtr GetConsoleWindow();
 public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
 '
 
+# Function to hide original PowerShell console
 function Hide-Console
 {
     $consolePtr = [Console.Window]::GetConsoleWindow()
-    #0 hide
+    # 0 means hide
     [Console.Window]::ShowWindow($consolePtr, 0)
 }
 
